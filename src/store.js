@@ -4,8 +4,9 @@
  */
 import Vue from 'vue';
 import Vuex from 'vuex';
+import axios from 'axios'
 
-Vue.use(Vuex);
+Vue.use(Vuex,axios);
 
 const now = new Date();
 const store = new Vuex.Store({
@@ -57,12 +58,29 @@ const store = new Vuex.Store({
         // 发送消息
         SEND_MESSAGE ({ sessions, currentSessionId }, content) {
             let session = sessions.find(item => item.id === currentSessionId);
+            console.log('this is a socket request, content:' + question)
+
             session.messages.push({
                 content: content,
                 date: new Date(),
                 self: true
             });
+
+            var question = content
+            var uri_base = 'http://127.0.0.1:5000/cr/'
+            console.log('this is a socket request, content:' + question)
+            axios.get(uri_base + content)
+                .then(function(response){
+                    console.log('response:', response.data)
+                    session.messages.push({
+                        content: response.data,
+                        date: new Date(),
+                        self: false
+                    })
+                })
         },
+
+
         // 选择会话
         SELECT_SESSION (state, id) {
             state.currentSessionId = id;
